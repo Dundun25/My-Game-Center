@@ -82,7 +82,7 @@ class Game:
                     for joke in range(1, num_of_joke):
                         joke_list.append(joke)
 
-                    while joke_list != []:
+                    while joke_list:
                         joke_random = random.choice(joke_list)
                         joke_list.remove(joke_random)
 
@@ -353,7 +353,7 @@ class Game:
 
             print()
 
-            blanks = '_'*len(secret_word)
+            blanks = '_' * len(secret_word)
             for i in range(len(secret_word)):  # Replace Blanks with correct guess letter
                 if secret_word[i] in correct_letter:
                     blanks = blanks[:i] + secret_word[i] + blanks[i + 1:]
@@ -377,42 +377,66 @@ class Game:
         def play_again():
             print("do you want to play again ?")
             return input().lower().startswith('y')
-        HANGMAN_PICS = ['''
-           +---+
-               |
-               |
-               |
-              ===''', '''
-           +---+
-           O   |
-               |
-               |
-              ===''', '''
-           +---+
-           O   |
-           |   |
-               |
-               ===''', '''
-           +---+
-           O   |
-          /|   |
-               |
-              ===''', '''
-           +---+
-           O   |
-          /|\\  |
-               |
-              ===''', '''
-           +---+
-           O   |
-          /|\\  |
-          /    |
-              ===''', '''
-           +---+
-           O   |
-          /|\\  |
-          / \\  |
-              ===''']
+
+        def get_difficulty():
+            HANGMAN = ['''
+  +---+
+      |
+      |
+      |
+     ===''', '''
+  +---+
+  O   |
+      |
+      |
+     ===''', '''
+  +---+
+  O   |
+  |   |
+      |
+     ===''', '''
+  +---+
+  O   |
+ /|   |
+      |
+     ===''', '''
+  +---+
+  O   |
+ /|\\ |
+      |
+     ===''', '''
+  +---+
+  O   |
+ /|\\ |
+ /    |
+     ===''', '''
+  +---+
+  O   |
+ /|\\ |
+ / \\ |
+     ===''']
+            life = []
+            while True:
+                print("Select Difficulty (Easy/Normal/Hard) :")
+                difficulty = input().lower().strip()
+                if difficulty == "easy" or difficulty == "normal" or difficulty == "hard":
+                    break
+                else:
+                    clear()
+                    print("Wrong Input!")
+                    sleep(1)
+            if difficulty == "easy":
+                for pic in HANGMAN:
+                    for i in range(2):
+                        life.append(pic)
+            elif difficulty == "normal":
+                for pic in HANGMAN:
+                    for i in range(1):
+                        life.append(pic)
+            elif difficulty == "hard":
+                life = HANGMAN
+            return life
+
         clear()
         print(f"Welcome to Hangman Game, {self.name}..")
         sleep(3)
@@ -434,6 +458,7 @@ class Game:
                 sleep(1)
                 clear()
         secret_word, category_name = get_secret_word(category)  # Generate the secret word
+        HANGMAN_PICS = get_difficulty()
         while True:
             clear()
             display_board(missed_letter, correct_letter, secret_word, category_name)
@@ -456,9 +481,10 @@ class Game:
             else:
                 missed_letter += guess
 
-                if len(missed_letter) == len(HANGMAN_PICS)-1:
+                if len(missed_letter) == len(HANGMAN_PICS) - 1:
                     display_board(missed_letter, correct_letter, secret_word, category_name)
-                    print(self.name + " ,You have run out of guesses!\n After " + str(len(missed_letter)) + " missed guesses and " +
+                    print(self.name + " ,You have run out of guesses!\n After " + str(
+                        len(missed_letter)) + " missed guesses and " +
                           str(len(correct_letter)) + " correct guesses, the word was :" + str(secret_word))
                     game_is_done = True
 
@@ -470,7 +496,8 @@ class Game:
                     while True:
                         clear()
                         choice = ["1", "2", "3", "4"]
-                        print("Hi, " + self.name + " Please Select Category first :\n1. Animal\n2. Vehicle \n3. Thing\n4. Anything")
+                        print(
+                            "Hi, " + self.name + " Please Select Category first :\n1. Animal\n2. Vehicle \n3. Thing\n4. Anything")
                         category = input("> ")
                         if category in choice:
                             clear()
@@ -480,6 +507,8 @@ class Game:
                             sleep(1)
                             clear()
                     secret_word, category_name = get_secret_word(category)  # Generate the secret word
+                    get_difficulty()
+
                 else:
                     clear()
                     print("Thanks For Playing, " + self.name + " !")
@@ -555,6 +584,5 @@ def game_menu():
             wrong_counter += 1
             print(f"({wrong_counter}) I'm Sorry Wrong input \n")
             new_game = False
-
 
 game_menu()
