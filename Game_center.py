@@ -343,18 +343,18 @@ class Game:
             word = random.choice(world)
             return word, word_category
 
-        def display_board(missed_letter, correct_letter, secret_word):
+        def display_board(missed_letter, correct_letter, secret_word, category):
             print(HANGMAN_PICS[len(missed_letter)])
             print()
-
-            print("Missed Letter :", end=" ")
+            print(f"Category\t: {category}")
+            print("Missed Letter\t:", end=" ")
             for letter in missed_letter:
                 print(letter, end=" ")
 
             print()
 
             blanks = '_'*len(secret_word)
-            for i in range(len(secret_word)):
+            for i in range(len(secret_word)):  # Replace Blanks with correct guess letter
                 if secret_word[i] in correct_letter:
                     blanks = blanks[:i] + secret_word[i] + blanks[i + 1:]
             for letter in blanks:
@@ -362,17 +362,17 @@ class Game:
 
         def get_guess(already_guessed):
             while True:
-                print("Guess a letter :" )
-                guess = input("> ")
-                guess = guess.lower()
-                if len(guess) != 1:
+                print("\nGuess a letter : ")
+                user_guess = input("> ")
+                user_guess = user_guess.lower()
+                if len(user_guess) != 1:
                     print("please insert only one number")
-                elif guess in already_guessed:
+                elif user_guess in already_guessed:
                     print("you already guess that word, please guess another word")
-                elif guess not in 'abcdefghijklmnopqrstuvwxyz':
+                elif user_guess not in 'abcdefghijklmnopqrstuvwxyz':
                     print("please insert only Letter")
                 else:
-                    return guess
+                    return user_guess
 
         def play_again():
             print("do you want to play again ?")
@@ -420,9 +420,11 @@ class Game:
         missed_letter = ''
         correct_letter = ''
         game_is_done = False
+        # Randomized Secret Word
         while True:
+            clear()
             choice = ["1", "2", "3", "4"]
-            print("Please Select Category first :\n1. Animal\n2. Vehicle \n3. Thing\n4. Anything")
+            print("Hi, " + self.name + " Please Select Category first :\n1. Animal\n2. Vehicle \n3. Thing\n4. Anything")
             category = input("> ")
             if category in choice:
                 clear()
@@ -433,7 +435,8 @@ class Game:
                 clear()
         secret_word, category_name = get_secret_word(category)  # Generate the secret word
         while True:
-            display_board(missed_letter, correct_letter, secret_word)
+            clear()
+            display_board(missed_letter, correct_letter, secret_word, category_name)
 
             # let the player enter the letter
             guess = get_guess(missed_letter + correct_letter)
@@ -443,20 +446,20 @@ class Game:
 
                 found_all_letter = True
                 for i in range(len(secret_word)):
-                    if secret_word[1] not in correct_letter:
+                    if secret_word[i] not in correct_letter:
                         found_all_letter = False
                         break
                 if found_all_letter:
-                    print("Yes! the secret word is '" + secret_word + "' You have won the game")
+                    print("Yes! the secret word is '" + secret_word + "' You have won the game, " + self.name)
                     game_is_done = True
 
             else:
                 missed_letter += guess
 
                 if len(missed_letter) == len(HANGMAN_PICS)-1:
-                    display_board(missed_letter, correct_letter, secret_word)
-                    print("You have run out of guesses!\n After " + str(len(missed_letter)) + "missed guesses and " +
-                          str(len(correct_letter)) + "correct guesses, the word was :" + str(secret_word))
+                    display_board(missed_letter, correct_letter, secret_word, category_name)
+                    print(self.name + " ,You have run out of guesses!\n After " + str(len(missed_letter)) + " missed guesses and " +
+                          str(len(correct_letter)) + " correct guesses, the word was :" + str(secret_word))
                     game_is_done = True
 
             if game_is_done:
@@ -465,8 +468,9 @@ class Game:
                     correct_letter = ''
                     game_is_done = False
                     while True:
+                        clear()
                         choice = ["1", "2", "3", "4"]
-                        print("Please Select Category first :\n1. Animal\n2. Vehicle \n3. Thing\n4. Anything")
+                        print("Hi, " + self.name + " Please Select Category first :\n1. Animal\n2. Vehicle \n3. Thing\n4. Anything")
                         category = input("> ")
                         if category in choice:
                             clear()
@@ -477,6 +481,8 @@ class Game:
                             clear()
                     secret_word, category_name = get_secret_word(category)  # Generate the secret word
                 else:
+                    clear()
+                    print("Thanks For Playing, " + self.name + " !")
                     break
 
 
@@ -528,7 +534,6 @@ def game_menu():
         elif game_selection == "5":
             wrong_counter = 0
             new_game = True
-            print("coming soon..")
             game = Game(name, age, gender)
             game.hang_man()
             sleep(2)
