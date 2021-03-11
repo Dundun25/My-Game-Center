@@ -417,21 +417,21 @@ class Game:
      ===''']
             life = []
             while True:
+                clear()
                 print("Select Difficulty (Easy/Normal/Hard) :")
                 difficulty = input().lower().strip()
                 if difficulty == "easy" or difficulty == "normal" or difficulty == "hard":
                     break
                 else:
-                    clear()
                     print("Wrong Input!")
                     sleep(1)
             if difficulty == "easy":
                 for pic in HANGMAN:
-                    for i in range(2):
+                    for i in range(3):
                         life.append(pic)
             elif difficulty == "normal":
                 for pic in HANGMAN:
-                    for i in range(1):
+                    for i in range(2):
                         life.append(pic)
             elif difficulty == "hard":
                 life = HANGMAN
@@ -514,6 +514,300 @@ class Game:
                     print("Thanks For Playing, " + self.name + " !")
                     break
 
+    def rock_paper_scissor(self):
+        print(f"coming soon..")
+        sleep(2)
+
+    def tic_tac_toe(self):
+        def init():  # Game fundamental initiation
+            win = False
+            board_dict = {}
+            choices = []
+            for i in range(1, 10):
+                board_dict[i] = " "
+            for i in range(1, 10):
+                choices.append(i)
+
+            return win, board_dict, choices
+
+        def who_first():
+            choice = random.randint(1, 2)
+            if choice == 1:
+                return 'Computer'
+            else:
+                return self.name
+
+        def draw_board(board_dict):
+            board = ""
+            for i in range(1, len(board_dict) + 1):
+                board += str(board_dict.get(i))
+                if i % 3 == 0:
+                    if i != 9:
+                        board += "\n"
+
+            board = board.split(sep="\n")
+            real_board = ''
+
+            for numbers in board:
+                for number in numbers:
+                    real_board += f" {number} |"
+                real_board += "\n---+---+---\n"
+            print(real_board)
+
+        def get_player_symbol():
+            while True:
+                symbol = input("do you want to play with X or O ?\n")
+                if symbol.lower().strip() == "o":
+                    player = "O"
+                    bot = "X"
+                    break
+                elif symbol.lower().strip() == "x":
+                    player = "X"
+                    bot = "O"
+                    break
+                else:
+                    print("wrong input")
+            return player, bot
+
+        def bot_guess(board, available_choice, bot_symbol):
+            if bot_symbol == "X":
+                player_symbol = "O"
+            else:
+                bot_symbol = "O"
+                player_symbol = "X"
+            guess = None
+            for i in range(1, 10):  # check if bot can win in one turn
+                board_copy = board.copy()
+                if i in available_choice:
+                    board_copy[i] = bot_symbol
+                    player_win, bot_win, draw, game_ended = check_win(board_copy, available_choice, bot_symbol)
+                    if bot_win:
+                        guess = i
+                        break
+            for i in range(1, 10):  # check if player can win in one turn
+                board_copy = board.copy()
+                if i in available_choice:
+                    board_copy[i] = player_symbol
+                    player_win, bot_win, draw, game_ended = check_win(board_copy, available_choice, bot_symbol)
+                    if player_win:
+                        guess = i
+                        break
+            if guess is None:  # if no condition above fulfilled
+                side = [1, 3, 7, 9]
+                updated_side = []
+                for i in side:  # make list of available side
+                    if i in available_choice:
+                        updated_side.append(i)
+                if any(item in available_choice for item in updated_side):  # computer will pick side
+                    guess = random.choice(updated_side)
+                elif 5 in available_choice:  # if no side computer will pick middle
+                    guess = 5
+                else:  # if no side and middle computer will randomly pick from available choices
+                    guess = random.choice(available_choice)
+
+            available_choice.remove(guess)  # remove used available guess
+            board[guess] = bot_symbol  # computer draw move
+            return board, available_choice
+
+        def player_guess(board, available_choice, symbol):
+            while True:
+                guess = input("Your Turn : ")
+                try:
+                    guess = int(guess)
+                    if guess in available_choice:
+                        available_choice.remove(guess)
+                        board[guess] = symbol
+                        break
+                except ValueError:
+                    print("Please input correct number")
+                print("Please input correct number")
+
+            return board, available_choice
+
+        def check_win(board, available_choice, bot_symbol):
+            if bot_symbol == "X":
+                bot_win_condition = ("X", "X", "X")
+                player_win_condition = ("O", "O", "O")
+            else:
+                player_win_condition = ("X", "X", "X")
+                bot_win_condition = ("O", "O", "O")
+
+            # win pattern:
+            pattern_1 = board[1], board[2], board[3]  # horizontal
+            pattern_2 = board[4], board[5], board[6]
+            pattern_3 = board[7], board[8], board[9]
+
+            pattern_4 = board[1], board[4], board[7]  # vertical
+            pattern_5 = board[2], board[5], board[8]
+            pattern_6 = board[3], board[6], board[9]
+
+            pattern_7 = board[1], board[5], board[9]  # cross
+            pattern_8 = board[3], board[5], board[7]
+
+            win_pattern = []
+            win_pattern.extend((pattern_1, pattern_2, pattern_3,  # combine all pattern into a list
+                                pattern_4, pattern_5, pattern_6,
+                                pattern_7, pattern_8))
+            draw = False
+            game_ended = False
+            player_win = False
+            bot_win = False
+            if not available_choice:  # check if board is full
+                game_ended = True
+                draw = True
+            elif bot_win_condition in win_pattern:  # check if computer win
+                bot_win = True
+                game_ended = True
+                clear()
+            elif player_win_condition in win_pattern:  # check if player win
+                player_win = True
+                game_ended = True
+
+            return player_win, bot_win, draw, game_ended
+
+        def play_again():
+            while True:
+                again = input("Want to play Again?\n")
+                again = again.lower().strip()
+                if again == "yes" or again == "y":
+                    again = True
+                    clear()
+                    return again
+                elif again == "no" or again == "n":
+                    again = False
+                    clear()
+                    return again
+                print("Wrong Input")
+
+        def game_end_init():
+            again = play_again()
+            if again:
+                win, board, available_choices = init()
+                player_symbol, bot_symbol = get_player_symbol()
+                first = who_first()
+                return win, board, available_choices, player_symbol, bot_symbol, first
+            else:
+                return False
+
+        def win_message(player_win, bot_win, draw):
+            if player_win:
+                print(f"{self.name} is The winner")
+            elif bot_win:
+                print(f"Computer Win!")
+            elif draw:
+                print(f"Draw..")
+
+        def main():
+            clear()
+            print("Welcome to, Tic-Tac-Toe!")
+            sleep(3)
+            clear()
+            # game initiation
+            first = who_first()
+            print(f"{first} will go first!")
+            sleep(2)
+            win, board, available_choices = init()
+            player_symbol, bot_symbol = get_player_symbol()
+            while True:
+                if first == "Computer":
+                    clear()
+                    draw_board(board)
+                    board, available_choices = bot_guess(board, available_choices, bot_symbol)  # computer Take Turn
+                    clear()
+                    draw_board(board)  # Draw Board
+                    player_win, bot_win, draw, end = check_win(board, available_choices,
+                                                               bot_symbol)  # check win condition
+                    if end:
+                        clear()
+                        draw_board(board)
+                        win_message(player_win, bot_win, draw)
+                        sleep(2)
+                        again = game_end_init()  # ask player want to play again?
+                        if not again:
+                            clear()
+                            print(f"Thanks For Playing, {self.name}")
+                            sleep(2)
+                            break
+                        else:  # init new game
+                            win, board, available_choices, player_symbol, bot_symbol, first = again
+                    elif not end:
+                        board, available_choices = player_guess(board, available_choices,
+                                                                player_symbol)  # Player Take Turn
+                        clear()
+                        draw_board(board)  # Draw Board
+                        player_win, bot_win, draw, end = check_win(board, available_choices,
+                                                                   bot_symbol)  # check win condition
+                        if end:
+                            clear()
+                            draw_board(board)
+                            win_message(player_win, bot_win, draw)
+                            sleep(2)
+                            again = game_end_init()  # ask player want to play again?
+                            if not again:
+                                clear()
+                                print(f"Thanks For Playing, {self.name}")
+                                sleep(2)
+                                break
+                            else:  # init new game
+                                win, board, available_choices, player_symbol, bot_symbol, first, stop_turn = again
+                else:
+                    clear()
+                    draw_board(board)
+                    board, available_choices = player_guess(board, available_choices, player_symbol)  # Player Take Turn
+                    draw_board(board)  # Draw Board
+                    player_win, bot_win, draw, end = check_win(board, available_choices,
+                                                               bot_symbol)  # check win condition
+                    if end:
+                        clear()
+                        draw_board(board)
+                        win_message(player_win, bot_win, draw)
+                        sleep(2)
+                        again = game_end_init()  # ask player want to play again?
+                        if not again:
+                            clear()
+                            print(f"Thanks For Playing, {self.name}")
+                            sleep(2)
+                            break
+                        else:  # init new game
+                            win, board, available_choices, player_symbol, bot_symbol, first = again
+                            print(f"{first} will go first!")
+                            sleep(2)
+                    elif not end:
+                        board, available_choices = bot_guess(board, available_choices, bot_symbol)  # computer Take Turn
+                        clear()
+                        draw_board(board)  # Draw Board
+                        player_win, bot_win, draw, end = check_win(board, available_choices,
+                                                                   bot_symbol)  # check win condition
+                        if end:
+                            clear()
+                            draw_board(board)
+                            win_message(player_win, bot_win, draw)
+                            sleep(2)
+                            again = game_end_init()  # ask player want to play again?
+                            if not again:
+                                clear()
+                                print(f"Thanks For Playing, {self.name}")
+                                sleep(2)
+                                break
+                            else:  # init new game
+                                win, board, available_choices, player_symbol, bot_symbol, first = again
+                                print(f"{first} will go first!")
+                                sleep(2)
+
+        main()
+
+    def space_invader(self):
+        print(f"coming soon..")
+        sleep(2)
+
+    def tetris(self):
+        print(f"coming soon..")
+        sleep(2)
+
+    def brick_breaker(self):
+        print(f"coming soon..")
+        sleep(2)
+
 
 def game_menu():
     clear()
@@ -523,51 +817,59 @@ def game_menu():
     clear()
     gender = input("Describe Your Gender(F/M)\n> ")
     clear()
-    new_game = True
-    wrong_counter = 0
+
+    def game_init():
+        new_in_menu = True
+        wrong_counter = 0
+        return new_in_menu, wrong_counter
+
+    new_in_menu, wrong_counter = game_init()
 
     while True:
-        if new_game:
+        if new_in_menu:
             print(f"Welcome to this game center, {name}\n")
 
         game_selection = input(f"Please Select a Game That You Wanna Play by calling the number or type 'exit' to "
                                f"quit:\n\n1. Guess a number\n2. Dad Jokes\n3. Dragon Realm\n4. Gura Adventure  "
-                               f"\n5. Hangman\n\n> ")
+                               f"\n5. Hangman\n6. Rock-Paper-Scissor\n7. Tic-Tac-Toe\n\n> ")
         clear()
         game_selection = game_selection.lower()
 
         if game_selection == "1":
-            wrong_counter = 0
-            new_game = True
+            new_in_menu, wrong_counter = game_init()
             game = Game(name, age, gender)
             game.guessing_game()
-            del game
         elif game_selection == "2":
-            wrong_counter = 0
-            new_game = True
+            new_in_menu, wrong_counter = game_init()
             game = Game(name, age, gender)
             game.dad_jokes()
-            del game
         elif game_selection == "3":
-            wrong_counter = 0
-            new_game = True
+            new_in_menu, wrong_counter = game_init()
             game = Game(name, age, gender)
             game.dragon_realm()
-            del game
         elif game_selection == "4":
-            wrong_counter = 0
-            new_game = True
+            new_in_menu, wrong_counter = game_init()
             game = Game(name, age, gender)
             game.gura_adventure()
-            del game
         elif game_selection == "5":
-            wrong_counter = 0
-            new_game = True
+            new_in_menu, wrong_counter = game_init()
             game = Game(name, age, gender)
             game.hang_man()
             sleep(2)
             clear()
+        elif game_selection == "6":
+            new_in_menu, wrong_counter = game_init()
+            game = Game(name, age, gender)
+            game.rock_paper_scissor()
+            sleep(2)
+            clear()
             del game
+        elif game_selection == "7":
+            new_in_menu, wrong_counter = game_init()
+            game = Game(name, age, gender)
+            game.tic_tac_toe()
+            sleep(2)
+            clear()
 
         elif game_selection.lower().strip() == "exit":
             print("Thanks For Playing!")
@@ -583,6 +885,7 @@ def game_menu():
         else:
             wrong_counter += 1
             print(f"({wrong_counter}) I'm Sorry Wrong input \n")
-            new_game = False
+            new_in_menu = False
+
 
 game_menu()
